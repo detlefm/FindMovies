@@ -210,14 +210,15 @@ __marimo__/
 #tstdata/
 data/batch/
 data/tmp/
+data/movies_epgs.*
 !data
-movies_epgs.*
+
 
 # doc folder
 docs/
 
 # LLM 
-startcli.*
+# startcli.*
 
 # Mac
 .DS_Store
