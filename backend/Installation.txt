@@ -1,0 +1,38 @@
+Installation
+
+1. Kopiere den Inhalt der Zip Datei in ein neues Verzeichnis
+
+2. Öffne das Verzeichnis mit cmd oder PowerShell
+
+3. Erzeuge ein virtuelles Environment mit
+
+python -m venv .venv
+
+4. Aktiviere das virtuelle Environment mit
+
+.venv\Scripts\Activate.ps1 # PowerShell oder
+
+.venv\Scripts\activate.bat # cmd
+
+5. Installiere die notwendigen Pakete mit
+
+pip install -r requirements.txt
+
+6. Kopiere die env.txt Datei  in eine .env Datei mit
+
+copy env.txt .env.
+
+7. Editiere die .env Datei
+Entferne die Einträge die Du nicht als AI Provider verwenden willst und 
+füge die entsprechenden API Keys für den AI Provider Deiner Wahl hinzu.
+Derzeit wird der TMDB_TOKEN nicht benötigt da keine Daten von tmdb herunter geladen werden.
+Aktuell werden OPENAI, GEMINI, OPENROUTER und OLLAMA unterstützt. Auch für die lokalen Ollama Anfragen
+wird ein API Key benötigt. Der Inhalt ist egal.
+
+7. Editiere die app.yaml Datei
+Notwendige Änderungen:
+server_url: "Dein MediaServer"
+ai_model: "leer oder ein Modelname" # wenn leer wird keine AI Anfrage vorgenommen
+ai_provider: # Entferne die Einträge für die Du keinen API Key hast bzw. die Du nicht verwenden willst
+
+

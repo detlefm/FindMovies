@@ -1,0 +1,49 @@
+### Post Request
+POST http://localhost:11434/api/generate
+Content-Type: application/json
+
+{
+  "model": "qwen3:latest",
+  "prompt": "Warum ist der Himmel blau?",
+  "stream": false
+}
+
+POST http://localhost:1234/v1/chat/completions 
+Content-Type: application/json
+{
+           "model": "your-model-name",
+           "messages": [{"role": "user", "content": "Hello!"}]
+}
+
+
+
+GET http://localhost:8000/epg
+Content-Type: application/json
+
+### 
+
+GET http://winserver:8089/api/timeradd.html?ch=2359890582721931325&isodate=2025-07-30&isostart=20:15&action=0&enable=1&encoding=255&epgevent=63344&isostop=21:45&monitorpdc=1&pdc=998671&post=5&pre=5&title=testtesttest&response=1
+Content-Type: application/xml
+
+
+###
+
+GET http://winserver:8089/api/getchannelsxml.html?favonly=1
+
+###
+GET http://winserver:8089/api/timerlist.html?utf8=2
+
+###
+POST http://localhost:8000/collect
+
+###
+GET http://host.docker.internal:8089/api/status2.html
+
+###
+GET http://localhost:8000/movies
+
+###
+
+GET http://localhost:8000/info
+
+###

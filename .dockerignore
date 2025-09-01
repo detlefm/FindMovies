@@ -1,0 +1,25 @@
+# Git and virtual environments
+.git
+.venv
+.vscode
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node.js dependencies
+frontend/node_modules/
+npm-debug.log
+
+# Build artifacts
+frontend/dist/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Env files - should not be in the image
+.env
+backend/.env

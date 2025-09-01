@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python Debugger: find_movies",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./backend/find_movies.py",
+            "console": "integratedTerminal",
+            "args": [
+                "collect", "--output"
+            ]
+        },
+        {
+            "name": "Python: FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            //"module": "uvicorn",
+            "program": "./backend/main.py",
+            // "args": [
+            //     "./backend/main.py",
+            //     "--reload",
+            //     "--host", "0.0.0.0",
+            //     "--port", "8000"
+            // ],
+            // "jinja": true,
+            "justMyCode": false,
+            // "console": "integratedTerminal",
+            // "cwd": "${workspaceFolder}/backend"
+        }
+    ]
+}

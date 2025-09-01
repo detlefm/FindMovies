@@ -1,0 +1,25 @@
+Du erhältst zwei Arten von Informationen im JSON-Format:
+ # Einen EPG-Eintrag:
+ {epg_entry}
+ # Eine Liste von TMDB-Filmbeschreibungen:
+ {tmdb_movies}
+ # Deine Aufgabe
+ 
+ Deine Aufgabe ist es, für jede TMDB-Filmbeschreibung eine Wahrscheinlichkeit (0 bis 1) anzugeben, ob der EPG-Eintrag dazu passt.  
+**Gib NUR eine JSON-Liste im folgenden Format zurück - KEINEN anderen Text!**  
+
+### STRENGE REGELN:
+1.  Escape alle Anführungszeichen und Backslashes in Strings 
+2.  Im Feld `reasoning`:  
+    - Verwende KEINE Zeilenumbrüche.  
+3.  Format:  
+```json
+[
+  {
+    "tmdb_title": "Titel",
+    "tmdb_id": 123,
+    "eventid": "string|id",
+    "probability": 0.75,
+    "reasoning": "Kurz & mit escaped \"Zeichen\""
+  }
+]

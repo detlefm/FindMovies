@@ -1,0 +1,33 @@
+Header:
+Buttons für: Heute, Morgen, Diese Woche, Nächste Woche, Alle
+Auswahlbox für Sortierung: Nach Sendern, Nach Datum/Uhrzeit, Nach Titeln
+Jugendschutzcode
+ Build a **Svelte 5 frontend** that displays EPG (Electronic Program Guide) entries. The backend is a **FastAPI** server providing the data.
+
+ Each EPG entry includes:
+
+ * `title`: string
+ * `description`: string
+ * `air_datetime`: ISO 8601 timestamp
+ * `image_url`: URL (e.g., from TMDB)
+ * `genres`: list of strings
+ * `main_actors`: list of strings
+
+ **Frontend requirements:**
+
+ * Display EPG entries in a card or list format
+ * Show image, title, description, air date/time, genres, and actors
+ * **Sorting options**:
+
+   * by title (A-Z)
+   * by air date/time
+   * by main actor
+   * by genre
+ * **Filtering options**:
+
+   * by title (partial match)
+   * by air time/date (range, e.g., only today's)
+   * by actor (select or autocomplete)
+   * by genre (checkboxes or multi-select)
+
+ The frontend should retrieve data asynchronously from the FastAPI backend (e.g. via `fetch` or `await`). Use Svelte stores or reactive statements for implementing filtering and sorting logic.

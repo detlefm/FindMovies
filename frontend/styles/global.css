@@ -1,0 +1,111 @@
+/* Stile für den Body und allgemeine App-Container */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* Farbvariablen für Hell- und Dunkelmodus */
+:root {
+  --color-background: #f8f9fa;
+  --color-text: #212529;
+  --color-primary: #007bff;
+  --color-primary-hover: #0056b3;
+  --color-secondary: #6c757d;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --color-card-bg: #ffffff;
+  --color-card-border: #dee2e6;
+  --color-input-bg: #fff;
+  --color-input-border: #ced4da;
+  --color-disabled-bg: #e9ecef;
+  --color-disabled-text: #6c757d;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #121212;
+    --color-text: #e0e0e0;
+    --color-primary: #4dabf7;
+    --color-primary-hover: #1e88e5;
+    --color-card-bg: #1e1e1e;
+    --color-card-border: #424242;
+    --color-input-bg: #2c2c2c;
+    --color-input-border: #555;
+    --color-disabled-bg: #333;
+    --color-disabled-text: #888;
+  }
+}
+
+/* Globale Elemente */
+h1 {
+  text-align: center;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+}
+
+button, input {
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--color-input-border);
+  background-color: var(--color-input-bg);
+  color: var(--color-text);
+}
+
+button {
+  cursor: pointer;
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  transition: background-color 0.2s;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+}
+
+button:disabled {
+  background-color: var(--color-disabled-bg);
+  color: var(--color-disabled-text);
+  border-color: var(--color-input-border);
+  cursor: not-allowed;
+}
+
+/* Utility-Klassen */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.container {
+  padding: 1rem;
+  background-color: var(--color-card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .container {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+}

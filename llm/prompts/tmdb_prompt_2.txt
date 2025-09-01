@@ -1,0 +1,22 @@
+
+# Aufgabenbeschreibung
+Du erhältst zwei Arten von Informationen im JSON-Format:
+Einen EPG-Eintrag und eine Liste von TMDB-Filmbeschreibungen.Deine Aufgabe ist es, für jede dieser TMDB-Filmbeschreibungen eine Wahrscheinlichkeit (zwischen 0 und 1) anzugeben, wie wahrscheinlich es ist, dass sich der EPG-Eintrag auf diesen Film bezieht.
+# Ausgabeformat
+Gib als Ergebnis eine JSON-Liste ohne weitere Anmerkungen im folgenden Format zurück:
+[
+  {
+    "tmdb_title": "...",
+    "tmdb_id": 123456,
+    "eventid": 789012,
+    "probability": 0.85,
+    "reasoning": "..."
+  },
+  ...
+]
+
+# EPG-Eintrag und TMDB-Filmbeschreibungen
+
+```json
+$JSONDATA$
+```
