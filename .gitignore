@@ -211,6 +211,7 @@ __marimo__/
 data/batch/
 data/tmp/
 !data
+movies_epgs.*
 
 # doc folder
 docs/
