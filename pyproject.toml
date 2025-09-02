@@ -1,5 +1,5 @@
 [project]
-name = "searchepg"
+name = "findmovies"
 version = "0.6.0"
 description = "Klassifizierung von EPGs (Source MediaServer / DvbViewer)"
 authors = [{ name = "Detlef Meyer", email = "dmeyer@dmone.de" }]

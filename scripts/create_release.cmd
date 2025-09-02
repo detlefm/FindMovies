@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-:: This script creates a release bundle for SearchEPG.
+:: This script creates a release bundle for FindMovies.
 :: It takes one argument: the destination path.
 
 if "%~1"=="" (

@@ -1069,7 +1069,7 @@ wheels = [
 ]
 
 [[package]]
-name = "searchepg"
+name = "findmovies"
 version = "0.6.0"
 source = { editable = "." }
 dependencies = [

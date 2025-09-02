@@ -29,7 +29,7 @@ class BaseChatClient:
         """Zusätzliche Header für die API-Anfrage"""
         return {
             "HTTP-Referer": "xyz.de",
-            "X-Title": "SearchEPG",
+            "X-Title": "FindMovies",
         }
     
     def info(self) -> dict:

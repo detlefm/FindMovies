@@ -1,4 +1,4 @@
-# SearchEPG Movie Collector
+# FindMovies Movie Collector
 
 Dieses Projekt ermöglicht das Sammeln, Filtern und Verwalten von Filminformationen aus einem EPG (Electronic Program Guide). Es besteht aus einem FastAPI-Backend für die Datenverarbeitung und einem Svelte-Frontend zur Interaktion.
 
@@ -40,7 +40,7 @@ Führen Sie die folgenden Schritte aus, um das Projekt lokal einzurichten.
 
 ```bash
 git clone <URL_des_GitHub_Repos>
-cd SearchEPG
+cd FindMovies
 ```
 
 #### b) Backend einrichten

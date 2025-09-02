@@ -27,7 +27,7 @@ def copy_tree(src: Path, dest: Path):
 # --- Main Script ---
 def main():
     """Assembles the release bundle."""
-    parser = argparse.ArgumentParser(description="Create a release bundle for SearchEPG.")
+    parser = argparse.ArgumentParser(description="Create a release bundle for FindMovies.")
     parser.add_argument("destination", type=Path, help="The destination path to copy the release files to.")
     args = parser.parse_args()
 

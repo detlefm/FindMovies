@@ -1,7 +1,7 @@
 """
-# SearchEPG Setup Guide
+# FindMovies Setup Guide
 
-This guide provides instructions on how to set up and run the SearchEPG application using PowerShell, Windows CMD, and Bash.
+This guide provides instructions on how to set up and run the FindMovies application using PowerShell, Windows CMD, and Bash.
 
 ## 1. Prerequisites: Check for Python
 
@@ -80,7 +80,7 @@ Before starting the application, you can customize the settings.
 
 ## 6. Start the Application
 
-Finally, start the SearchEPG server.
+Finally, start the FindMovies server.
 
 ```shell
 python backend/main.py
