@@ -78,7 +78,7 @@ cd ..
 #### d) Konfiguration
 
 1.  **`app.yaml`:** Passen Sie diese Datei bei Bedarf an Ihre Umgebung an.
-2.  **`.env`:** Kopieren Sie `backend/env.txt` in das Hauptverzeichnis und benennen Sie es in `.env` um. Passen Sie die Werte darin an.
+2.  **`.env`:** Kopieren Sie `env.example` in das Hauptverzeichnis und benennen Sie es in `prod.env` um (siehe docker run). Passen Sie die Werte darin an.
 
 ### 3. Anwendung starten
 
@@ -93,33 +93,85 @@ Der Server startet und ist nun unter **http://localhost:8000** in Ihrem Browser 
 
 ## Docker-Installation (Empfohlen)
 
-Mit Docker können Sie die Anwendung als isolierten Container ausführen, ohne Python oder Node.js direkt auf Ihrem System installieren zu müssen.
+Mit Docker können Sie die Anwendung als isolierten Container ausführen, ohne Python oder Node.js direkt auf Ihrem System installieren zu müssen. Dies ist der sauberste und empfohlene Weg für die meisten Benutzer.
 
 ### 1. Voraussetzungen
 
-- **Docker Desktop:** Muss installiert und gestartet sein.
-- **Konfigurationsdateien:** Die `app.yaml` und eine `.env`-Datei (wie oben beschrieben) müssen im Hauptverzeichnis vorhanden sein.
+- **Docker Desktop:** Muss für Ihr Betriebssystem (z.B. Windows oder macOS) installiert und gestartet sein.
 
 ### 2. Docker-Image bauen
 
+Öffnen Sie ein Terminal (wie PowerShell, CMD oder das macOS Terminal) im Hauptverzeichnis dieses Projekts und führen Sie den folgenden Befehl aus. Dieser Prozess kann einige Minuten dauern.
+
 ```bash
-docker build -t searchepg .
+docker build -t findmovies-app .
 ```
 
 ### 3. Docker-Container starten
 
-```bash
-docker run -d -p 8000:8000 \
-  --name searchepg-app \
-  --env-file .env \
-  -v ./data:/app/data \
-  -v ./plugins:/app/plugins \
-  searchepg
+Die folgenden Anleitungen zeigen den empfohlenen Weg, den Container mit externen Ordnern für Konfiguration und Daten zu starten. Dies ist Best Practice und macht Ihr Setup sauber und wartbar.
+
+#### Anleitung für Windows
+
+**Schritt 1: Verzeichnisse erstellen**
+Erstellen Sie die folgende Ordnerstruktur. Sie können dies im Windows Explorer oder mit diesen Befehlen in einer PowerShell tun:
+```powershell
+mkdir C:\docker-data\findmovies\config
+mkdir C:\docker-data\findmovies\data
+mkdir C:\docker-data\findmovies\plugins
 ```
 
-Die Anwendung ist jetzt ebenfalls unter **http://localhost:8000** erreichbar.
+**Schritt 2: Konfigurationsdateien vorbereiten**
+1.  Kopieren Sie `app.yaml` nach `C:\docker-data\findmovies\config\app.yaml`.
+2.  Kopieren Sie `env.example` nach `C:\docker-data\findmovies\config\prod.env`.
+3.  Bearbeiten Sie die `prod.env`-Datei und tragen Sie Ihre Secrets ein.
+
+**Schritt 3: Container starten**
+Führen Sie diesen Befehl in Ihrer PowerShell aus:
+```powershell
+docker run -d --name findmovies-app-instance \
+  -p 8000:8000 \
+  -v "C:/docker-data/findmovies/config/app.yaml:/app/app.yaml" \
+  -v "C:/docker-data/findmovies/data:/app/data" \
+  -v "C:/docker-data/findmovies/plugins:/app/plugins" \
+  --env-file "C:/docker-data/findmovies/config/prod.env" \
+  findmovies-app
+```
 
 ---
+
+#### Anleitung für macOS
+
+**Schritt 1: Verzeichnisse erstellen**
+Öffnen Sie das Terminal und erstellen Sie die Ordner in Ihrem Home-Verzeichnis (`~`):
+```bash
+# Der -p Flag erstellt die übergeordneten Verzeichnisse, falls sie nicht existieren
+mkdir -p ~/docker-data/findmovies/{config,data,plugins}
+```
+
+**Schritt 2: Konfigurationsdateien vorbereiten**
+1.  Kopieren Sie `app.yaml` nach `~/docker-data/findmovies/config/app.yaml`.
+2.  Kopieren Sie `env.example` nach `~/docker-data/findmovies/config/prod.env`.
+3.  Bearbeiten Sie die `prod.env`-Datei und tragen Sie Ihre Secrets ein.
+
+**Schritt 3: Container starten**
+Führen Sie diesen Befehl in Ihrem Terminal aus:
+```bash
+docker run -d --name findmovies-app-instance \
+  -p 8000:8000 \
+  -v ~/docker-data/findmovies/config/app.yaml:/app/app.yaml \
+  -v ~/docker-data/findmovies/data:/app/data \
+  -v ~/docker-data/findmovies/plugins:/app/plugins \
+  --env-file ~/docker-data/findmovies/config/prod.env \
+  findmovies-app
+```
+
+---
+
+Nach dem Start ist die Anwendung unter **http://localhost:8000** erreichbar.
+
+Um den Container zu stoppen, können Sie `docker stop findmovies-app-instance` ausführen. Um ihn neu zu starten, `docker start findmovies-app-instance`.
+
 
 ## Release-Bundle (für einfache Nutzung)
 

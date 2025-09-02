@@ -29,13 +29,15 @@ RUN pip install uv
 COPY backend/requirements.txt .
 
 # Install Python dependencies using uv
-RUN uv pip install --no-cache-dir -r requirements.txt
+#RUN uv pip install --no-cache-dir -r requirements.txt
+RUN uv pip install --no-cache-dir --system -r requirements.txt
 
 # Copy the backend application code
 COPY backend/ ./backend/
 
-# Copy the main configuration file
-COPY app.yaml .
+# # Copy the main configuration file
+# COPY app.yaml .
+# Better: mount the config file
 
 # Copy the built frontend from the builder stage
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
