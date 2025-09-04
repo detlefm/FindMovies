@@ -1,4 +1,0 @@
- => exporting to image                                                                                                  0.6s 
- => => exporting layers                                                                                                 0.5s 
- => => writing image sha256:86da51d331266dc811cca11f52e71355abcc7bb092c35371af54a37b5ac3457e                            0.0s 
- => => naming to docker.io/library/findmovies-app          

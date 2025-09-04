@@ -4,8 +4,6 @@ from typing import Optional, Dict, Any
 from pydantic import BaseModel, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import yaml
-from dotenv import load_dotenv
-load_dotenv()
 
 class AiProviderData(BaseModel):
     models: set[str]

@@ -41,24 +41,39 @@ from app.services.ms_types import MS_Timer
 import importlib.util
 from app.my_types import EPGFilter
 
+import os
+import sys
+
 # ----------------- Bootstrap -----------------
 load_dotenv()
 cfg.init_config()
 
 data_path = Path(cfg.settings.data_folder)
 std_movies_path = data_path / "movies_epgs.jsonl"
-logpath: str = cfg.settings.log_folder or cfg.settings.data_folder 
+logpath: str = cfg.settings.log_folder or cfg.settings.data_folder
 logfilename = Path(logpath) / "app.log"
 
-
-
 # Root-Logger einmalig konfigurieren
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelno)s] %(message)s",
-    datefmt="%y-%m-%d %H:%M",
-    handlers=[logging.FileHandler(logfilename, encoding="utf-8")],
-)
+# Prüfen, ob in Docker via Umgebungsvariable LOG_TO_STDOUT=true
+if os.environ.get("LOG_TO_STDOUT", "false").lower() == "true":
+    # In Docker: Log auf stdout
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%y-%m-%d %H:%M",
+        stream=sys.stdout,
+    )
+    logging.info("Logging is configured to stream to stdout.")
+else:
+    # Lokal: Log in Datei
+    logfilename.parent.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelno)s] %(message)s",
+        datefmt="%y-%m-%d %H:%M",
+        handlers=[logging.FileHandler(logfilename, encoding="utf-8")],
+    )
+    logging.info(f"Logging is configured to file: {logfilename}")
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 

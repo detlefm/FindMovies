@@ -1,13 +1,14 @@
 from datetime import datetime
 import re
-from openai import OpenAI, AsyncOpenAI
+from openai import OpenAI, AsyncOpenAI, APIError, AuthenticationError
 from openai.types.chat.chat_completion import ChatCompletion
-from dotenv import load_dotenv
 from os import getenv
 import asyncio
 from typing import Optional
 
-load_dotenv()
+class ChatRequestError(Exception):
+    """Exception für alle OpenAI-API-Fehler"""
+    pass
 
 
 class BaseChatClient:
@@ -66,13 +67,27 @@ class ChatClient(BaseChatClient):
         model = model or self.default_model
         if not model:
             raise AttributeError('model not set')
+        try:
+            completion = self.client.chat.completions.create(
+                model=model,
+                extra_headers=self._get_headers(),
+                messages=messages,  # type: ignore
+            )
+            return completion
+        except APIError as e:
+            if isinstance(e, AuthenticationError):
+                error_msg = f"Authentifizierung fehlgeschlagen: {e}"
+            else:
+                error_msg = f"API-Anfrage fehlgeschlagen: {e}"
+            
+            raise ChatRequestError(error_msg) from e              
         
-        completion = self.client.chat.completions.create(
-            model=model,
-            extra_headers=self._get_headers(),
-            messages=messages,  # type: ignore
-        )
-        return completion
+        # completion = self.client.chat.completions.create(
+        #     model=model,
+        #     extra_headers=self._get_headers(),
+        #     messages=messages,  # type: ignore
+        # )
+        # return completion
 
 
 class AsyncChatClient(BaseChatClient):
@@ -92,10 +107,24 @@ class AsyncChatClient(BaseChatClient):
         model = model or self.default_model
         if not model:
             raise AttributeError('model not set')
+        try:
+            completion = await self.client_async.chat.completions.create(
+                model=model,
+                extra_headers=self._get_headers(),
+                messages=messages,  # type: ignore
+            )
+            return completion
+        except APIError as e:
+            if isinstance(e, AuthenticationError):
+                error_msg = f"Authentifizierung fehlgeschlagen: {e}"
+            else:
+                error_msg = f"API-Anfrage fehlgeschlagen: {e}"
+            
+            raise ChatRequestError(error_msg) from e        
         
-        completion = await self.client_async.chat.completions.create(
-            model=model,
-            extra_headers=self._get_headers(),
-            messages=messages,  # type: ignore
-        )
-        return completion
+        # completion = await self.client_async.chat.completions.create(
+        #     model=model,
+        #     extra_headers=self._get_headers(),
+        #     messages=messages,  # type: ignore
+        # )
+        # return completion

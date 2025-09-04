@@ -35,6 +35,9 @@ RUN uv pip install --no-cache-dir --system -r requirements.txt
 # Copy the backend application code
 COPY backend/ ./backend/
 
+# Set the Python path to include the backend directory
+ENV PYTHONPATH=/app/backend
+
 # # Copy the main configuration file
 # COPY app.yaml .
 # Better: mount the config file

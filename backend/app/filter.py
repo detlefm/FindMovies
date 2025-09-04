@@ -2,6 +2,7 @@
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 import json
+import logging
 from pathlib import Path
 from typing import Any, Callable
 
@@ -12,6 +13,8 @@ from .my_types import EPG, EPGFilter
 from .epg_categorie import is_movie
 from .mediasrv_ctrl import MS_ControllerBase
 
+logger = logging.getLogger(__name__)
+
 
 # --------------------- EPG filter ---------------------------
 
@@ -21,7 +24,13 @@ class TitleBlacklstFilter(EPGFilter):
         if isinstance(filepath,str):
             filepath = Path(filepath)
         self.filepath = filepath
-        self.blacklist = filepath.read_text(encoding='utf-8').split('\n')
+        try:
+            self.blacklist = filepath.read_text(encoding='utf-8').split('\n')
+            self.blacklist = [line.strip() for line in self.blacklist if line.strip() and not line.startswith('#')]
+        except (FileNotFoundError, PermissionError, UnicodeDecodeError, IsADirectoryError, OSError) as e:
+            logger.warning(f'Could not read blacklist file {self.filepath}: {e}. Continuing without a blacklist.')
+            self.blacklist = []
+        
 
     def __call__(self, epg:EPG) -> bool:
         for entry in self.blacklist:
