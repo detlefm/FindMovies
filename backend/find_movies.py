@@ -79,9 +79,13 @@ class Chat4ContentInfo:
 
     def _chat(self, epg: EPG) -> str:
 
-
-        sepg = shrink_epg(epg)
-        jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+        try:
+            sepg = shrink_epg(epg)
+            jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+        except Exception as e:
+            logger.error(f"Error shrinking EPG: {str(e)}")
+            logger.error(f"EPG data: {epg.model_dump_json()}")
+            return "Other"
         usr_msg = {
             "role": "user",
             "content": self.prompttxt.replace("<EPGENTRY>", json.dumps(jsonstr, ensure_ascii=False)),

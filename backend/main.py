@@ -50,6 +50,7 @@ cfg.init_config()
 
 data_path = Path(cfg.settings.data_folder)
 std_movies_path = data_path / "movies_epgs.jsonl"
+collected_epgs_path = data_path / "collected_epgs.jsonl"
 logpath: str = cfg.settings.log_folder or cfg.settings.data_folder
 logfilename = Path(logpath) / "app.log"
 
@@ -146,8 +147,13 @@ class Chat4ContentInfo:
         self.prompttxt = prompttxt
 
     async def _chat(self, epg: EPG) -> str:
-        sepg = shrink_epg(epg)
-        jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+        try:
+            sepg = shrink_epg(epg)
+            jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+        except Exception as e:
+            logger.error(f"Error shrinking EPG: {str(e)}")
+            logger.debug(f"EPG data: {epg.model_dump(mode='json')}")
+            return "Other"
         usr_msg = {
             "role": "user",
             "content": self.prompttxt.replace("<EPGENTRY>", json.dumps(jsonstr, ensure_ascii=False)),
@@ -197,6 +203,10 @@ async def collect_movies( model: Optional[str] = None) -> int:
         infostatus.run_progress = 0.05
         try:
             epgs = await ms_ctrl.fetch_epgs(favonly=True)
+            # write_jsonl(
+            #     filepath=collected_epgs_path,
+            #     data=[epg.model_dump(mode="json", exclude_none=True) for epg in epgs],
+            # )
             infostatus.run_progress = 0.1
         except httpx.ConnectError as e:
             logger.error(str(e))

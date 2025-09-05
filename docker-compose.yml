@@ -1,15 +1,14 @@
 # Docker Compose-Datei für die FindMovies-Anwendung
 #
 # Diese Konfiguration vereinfacht das Starten des Containers erheblich.
-# Sie verwendet eine .env-Datei im Hauptverzeichnis, um die Pfade zur
-# Konfiguration und zu den Datenordnern zu verwalten.
+# Sie verwendet eine `docker.env`-Datei im Hauptverzeichnis, um die Pfade
+# zur Konfiguration und zu den Datenordnern zu verwalten.
 #
 # ANLEITUNG:
-# 1. Kopieren Sie `docker-compose.env.example` zu `.env`.
-# 2. Passen Sie die Pfade in der `.env`-Datei an Ihr System an.
-# 3. Führen Sie `docker-compose up -d` aus.
+# 1. Kopieren Sie `docker.env.example` zu `docker.env`.
+# 2. Passen Sie die Pfade in der `docker.env`-Datei an Ihr System an.
+# 3. Führen Sie `docker compose --env-file docker.env up -d` aus.
 #
-version: '3.8'
 
 services:
   findmovies:
@@ -29,3 +28,12 @@ services:
       # Lädt die Umgebungsvariablen (Secrets, LOG_TO_STDOUT) aus der prod.env-Datei.
       - ${CONFIG_PATH}/prod.env
     restart: unless-stopped
+    # Konfiguriert die automatische Verwaltung der Log-Dateien, um ein unkontrolliertes
+    # Wachstum zu verhindern.
+    logging:
+      driver: "json-file"
+      options:
+        # Jede Log-Datei wird maximal 10MB gross.
+        max-size: "10m"
+        # Es werden die letzten 3 Log-Dateien aufbewahrt.
+        max-file: "3"

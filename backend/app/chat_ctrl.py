@@ -25,9 +25,10 @@ def shrink_epg(epg:EPG) -> EPG_chat:
         'contentinfo': epg.contentinfo if epg.contentinfo else None,
         'event': epg.event if epg.event else None,
     }
-    return EPG_chat.model_validate({k: v for k, v in d.items() if v})
+    return EPG_chat.model_validate({k: v for k, v in d.items() if v is not None})
 
 
 def shrink_serial(serial:TVSerial) -> Serial_chat:
     return Serial_chat.model_validate(serial.model_dump(exclude_none=True))
     
+
