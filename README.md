@@ -101,95 +101,137 @@ Je nach Einstellung in Ihrer `.env`-Datei werden die Logs unterschiedlich ausgeg
 
 ---
 
-## Docker-Installation (Empfohlen)
+## Docker-Installation
 
-Mit Docker können Sie die Anwendung als isolierten Container ausführen, ohne Python oder Node.js direkt auf Ihrem System installieren zu müssen. Dies ist der sauberste und empfohlene Weg für die meisten Benutzer.
+Mit Docker können Sie die Anwendung als isolierten Container ausführen, ohne Python oder Node.js direkt auf Ihrem System installieren zu müssen.
 
-### 1. Voraussetzungen
+### Docker Compose (Empfohlene Methode)
 
-- **Docker Desktop:** Muss für Ihr Betriebssystem (z.B. Windows oder macOS) installiert und gestartet sein.
+Dies ist der einfachste und sauberste Weg, die Anwendung zu betreiben. Docker Compose verwendet eine Konfigurationsdatei (`docker-compose.yml`) und eine Umgebungsdatei (`docker.env`) für die Konfiguration.
 
-### 2. Wichtiger Hinweis zur Netzwerkkonfiguration
+**Konfliktvermeidung:** Um einen Konflikt mit der `.env`-Datei zu vermeiden, die für die manuelle Ausführung verwendet wird, nutzt Docker Compose hier die Datei `docker.env`.
 
-Die `server_url` in Ihrer `app.yaml` muss korrekt auf den EPG-Service verweisen. Je nachdem, wo dieser Dienst läuft, unterscheidet sich die Konfiguration:
+#### 1. Voraussetzungen
 
-- **Szenario 1: Der EPG-Service läuft auf demselben Computer wie Docker (dem "Host")**
-  Wenn der EPG-Dienst lokal auf Ihrem Windows- oder Mac-Rechner unter `localhost:8089` erreichbar ist, müssen Sie im Container eine spezielle Adresse verwenden. Ändern Sie die `server_url` in Ihrer `app.yaml` zu:
-  ```yaml
-  server_url: "http://host.docker.internal:8089"
-  ```
-  **Grund:** `localhost` innerhalb eines Containers verweist auf den Container selbst, nicht auf Ihren Computer. `host.docker.internal` ist die von Docker bereitgestellte Adresse, um den Host-Rechner zu erreichen.
+- **Docker Desktop:** Muss für Ihr Betriebssystem (z.B. Windows oder macOS) installiert und gestartet sein. Die moderne Version `docker compose` (V2) ist hier standardmäßig enthalten.
 
-- **Szenario 2: Der EPG-Service läuft auf einem anderen Gerät im Netzwerk (z.B. NAS)**
-  Wenn sich der Dienst auf einem anderen Server in Ihrem lokalen Netzwerk befindet (z.B. unter der IP `192.168.1.100`), können Sie diese IP-Adresse direkt in der `app.yaml` verwenden:
-  ```yaml
-  server_url: "http://192.168.1.100:8089"
-  ```
-  **Gut zu wissen:** Hierfür sind keine speziellen Docker-Netzwerkeinstellungen notwendig. Der Container kann standardmäßig auf andere Geräte in Ihrem lokalen Netzwerk zugreifen.
-
-### 3. Docker-Image bauen
-
-Öffnen Sie ein Terminal (wie PowerShell, CMD oder das macOS Terminal) im Hauptverzeichnis dieses Projekts und führen Sie den folgenden Befehl aus. Dieser Prozess kann einige Minuten dauern.
-
-```bash
-docker build -t findmovies-app .
-```
-
-### 4. Docker-Container starten
-
-Die folgenden Anleitungen zeigen den empfohlenen Weg, den Container mit externen Ordnern für Konfiguration und Daten zu starten. Dies ist Best Practice und macht Ihr Setup sauber und wartbar.
-
-#### Anleitung für Windows
+#### 2. Konfiguration
 
 **Schritt 1: Verzeichnisse erstellen**
-Erstellen Sie die folgende Ordnerstruktur. Sie können dies im Windows Explorer oder mit diesen Befehlen in einer PowerShell tun:
+Erstellen Sie eine Ordnerstruktur für Ihre Konfiguration und Daten. Diese Ordner sollten **außerhalb** des Projektverzeichnisses liegen, um sie bei Updates zu schützen.
+
+*Beispiel für Windows (PowerShell):*
 ```powershell
 mkdir C:\docker-data\findmovies\config
 mkdir C:\docker-data\findmovies\data
 mkdir C:\docker-data\findmovies\plugins
 ```
 
+*Beispiel für macOS/Linux:*
+```bash
+mkdir -p ~/docker-data/findmovies/{config,data,plugins}
+```
+
 **Schritt 2: Konfigurationsdateien vorbereiten**
-1.  Kopieren Sie `app.yaml` nach `C:\docker-data\findmovies\config\app.yaml` und passen Sie die Netzwerkkonfiguration wie oben beschrieben an.
-2.  Kopieren Sie `backend/env.example` nach `C:\docker-data\findmovies\config\prod.env`.
+1.  Kopieren Sie `app.yaml` in Ihr Konfigurationsverzeichnis (z.B. `C:\docker-data\findmovies\config\app.yaml`) und passen Sie die Netzwerkkonfiguration an (siehe Hinweis unten).
+2.  Kopieren Sie `backend/env.example` als `prod.env` in Ihr Konfigurationsverzeichnis (z.B. `C:\docker-data\findmovies\config\prod.env`).
 3.  Bearbeiten Sie die `prod.env`-Datei:
     - Tragen Sie Ihre Secrets (API-Keys) ein.
-    - Setzen Sie `LOG_TO_STDOUT=true`. Dies ist für den Docker-Betrieb dringend empfohlen.
-4.  Kopieren Sie `data/blacklist.txt` nach `C:\docker-data\findmovies\data\blacklist.txt` (falls Sie eine verwenden).
+    - Setzen Sie `LOG_TO_STDOUT=true`. Dies ist für den Docker-Betrieb zwingend erforderlich.
+4.  Kopieren Sie `data/blacklist.txt` in Ihr Datenverzeichnis (falls Sie eine verwenden).
+
+**Schritt 3: Pfade für Docker Compose konfigurieren**
+1.  Kopieren Sie die Datei `docker.env.example` zu `docker.env` im Hauptverzeichnis des Projekts.
+2.  Öffnen Sie die neue `docker.env`-Datei und passen Sie die Pfade `CONFIG_PATH`, `DATA_PATH` und `PLUGINS_PATH` an die im ersten Schritt erstellten Verzeichnisse an.
+
+**Schritt 4: Docker-Image bauen und Container starten**
+Öffnen Sie ein Terminal im Hauptverzeichnis des Projekts und führen Sie folgende Befehle aus. Wir verwenden hier die moderne `docker compose` Syntax (mit Leerzeichen statt Bindestrich). Die `--env-file`-Option teilt Docker Compose mit, wo die Konfiguration der Pfade zu finden ist.
+
+```bash
+# Baut das Docker-Image (nur beim ersten Mal oder nach Code-Änderungen nötig)
+docker compose --env-file docker.env build
+
+# Startet den Container im Hintergrund
+docker compose --env-file docker.env up -d
+```
+
+Die Anwendung ist nun unter **http://localhost:8000** erreichbar.
+
+**Zugriff auf die Logs**
+```bash
+docker compose --env-file docker.env logs -f
+```
+
+**Container stoppen**
+```bash
+docker compose --env-file docker.env down
+```
+
+#### Wichtiger Hinweis zur Netzwerkkonfiguration
+
+Die `server_url` in Ihrer `app.yaml` muss korrekt auf den EPG-Service verweisen.
+- **EPG-Service auf demselben Computer:** Verwenden Sie `http://host.docker.internal:8089`.
+- **EPG-Service im Netzwerk (z.B. NAS):** Verwenden Sie die IP-Adresse des Geräts, z.B. `http://192.168.1.100:8089`.
+
+---
 
 
-**Schritt 3: Container starten**
-Führen Sie diesen Befehl in Ihrer PowerShell aus:
+### Manueller `docker run` (Alternative Methode)
+
+Diese Methode wird nicht empfohlen, da sie zu langen und fehleranfälligen Befehlen führt. Verwenden Sie sie nur, wenn Sie Docker Compose nicht nutzen können oder wollen.
+
+Die Vorbereitung der Verzeichnisse und Konfigurationsdateien erfolgt wie im Abschnitt "Docker Compose" beschrieben.
+
+**1. Docker-Image bauen**
+
+```bash
+docker build -t findmovies-app .
+```
+
+**2. Container starten**
+
+Der `docker run`-Befehl kann durch die vielen Parameter sehr lang werden. Lange, mehrzeilige Befehle können in manchen Terminals (insbesondere unter Windows) Probleme verursachen.
+
+Es gibt hierfür zwei Lösungsansätze:
+
+1.  **Den Befehl in einer einzigen Zeile ausführen:** Dies ist die einfachste Methode, um Kompatibilitätsprobleme zu vermeiden.
+2.  **Ein Start-Skript erstellen:** Für eine wiederverwendbare Lösung können Sie den Befehl in einer Skriptdatei (`.cmd` für Windows oder `.sh` für macOS/Linux) speichern.
+
+
+#### Anleitung für Windows
+
+Führen Sie einen der folgenden Befehle in Ihrer PowerShell aus.
+
+**Option A: Mehrzeiliger Befehl (für moderne Terminals wie Windows Terminal)**
+
+Beachten Sie den Backtick (`` ` ``) am Ende jeder Zeile, der PowerShell signalisiert, dass der Befehl auf der nächsten Zeile weitergeht.
+
 ```powershell
-docker run -d --name findmovies-app-instance \
-  -p 8000:8000 \
-  -v "C:/docker-data/findmovies/config/app.yaml:/app/app.yaml" \
-  -v "C:/docker-data/findmovies/data:/app/data" \
-  -v "C:/docker-data/findmovies/plugins:/app/plugins" \
-  --env-file "C:/docker-data/findmovies/config/prod.env" \
+docker run -d --name findmovies-app-instance `
+  -p 8000:8000 `
+  -v "C:/docker-data/findmovies/config/app.yaml":/app/app.yaml `
+  -v "C:/docker-data/findmovies/data":/app/data `
+  -v "C:/docker-data/findmovies/plugins":/app/plugins `
+  --env-file "C:/docker-data/findmovies/config/prod.env" `
   findmovies-app
+```
+
+**Option B: Einzeiliger Befehl (sicherste Methode)**
+
+Kopieren Sie diesen Befehl als eine einzige lange Zeile in Ihr Terminal.
+
+```powershell
+docker run -d --name findmovies-app-instance -p 8000:8000 -v "C:/docker-data/findmovies/config/app.yaml":/app/app.yaml -v "C:/docker-data/findmovies/data":/app/data -v "C:/docker-data/findmovies/plugins":/app/plugins --env-file "C:/docker-data/findmovies/config/prod.env" findmovies-app
 ```
 
 ---
 
 #### Anleitung für macOS
 
-**Schritt 1: Verzeichnisse erstellen**
-Öffnen Sie das Terminal und erstellen Sie die Ordner in Ihrem Home-Verzeichnis (`~`):
-```bash
-# Der -p Flag erstellt die übergeordneten Verzeichnisse, falls sie nicht existieren
-mkdir -p ~\/docker-data\/findmovies\/{config,data,plugins}
-```
+**Option A: Mehrzeiliger Befehl**
 
-**Schritt 2: Konfigurationsdateien vorbereiten**
-1.  Kopieren Sie `app.yaml` nach `~/docker-data/findmovies/config/app.yaml` und passen Sie die Netzwerkkonfiguration wie oben beschrieben an.
-2.  Kopieren Sie `backend/env.example` nach `~/docker-data/findmovies/config/prod.env`.
-3.  Bearbeiten Sie die `prod.env`-Datei:
-    - Tragen Sie Ihre Secrets (API-Keys) ein.
-    - Setzen Sie `LOG_TO_STDOUT=true`. Dies ist für den Docker-Betrieb dringend empfohlen.
+Der Backslash (`\`) am Zeilenende signalisiert der Shell, dass der Befehl weitergeht.
 
-**Schritt 3: Container starten**
-Führen Sie diesen Befehl in Ihrem Terminal aus:
 ```bash
 docker run -d --name findmovies-app-instance \
   -p 8000:8000 \
@@ -200,30 +242,21 @@ docker run -d --name findmovies-app-instance \
   findmovies-app
 ```
 
----
+**Option B: Einzeiliger Befehl**
 
-Nach dem Start ist die Anwendung unter **http://localhost:8000** erreichbar.
+```bash
+docker run -d --name findmovies-app-instance -p 8000:8000 -v ~\/docker-data\/findmovies\/config\/app.yaml:\/app\/app.yaml -v ~\/docker-data\/findmovies\/data:\/app\/data -v ~\/docker-data\/findmovies\/plugins:\/app\/plugins --env-file ~\/docker-data\/findmovies\/config\/prod.env findmovies-app
+```
 
-### 5. Zugriff auf die Logs
+**Zugriff auf die Logs**
+```bash
+docker logs -f findmovies-app-instance
+```
 
-Je nach Konfiguration in Ihrer `prod.env` -Datei werden die Logs unterschiedlich ausgegeben:
-
-- **Wenn `LOG_TO_STDOUT=true` (Empfohlen für Docker):**
-  Die Logs werden vom Container an Docker weitergeleitet. Sie können sie jederzeit mit diesem Befehl einsehen:
-  ```bash
-  docker logs findmovies-app-instance
-  ```
-  Um die Logs live zu verfolgen, fügen Sie den `-f` (follow) Flag hinzu:
-  ```bash
-  docker logs -f findmovies-app-instance
-  ```
-
-- **Wenn `LOG_TO_STDOUT=false` (Standard für lokale Ausführung):**
-  Die Anwendung schreibt in eine Datei `app.log`. Wenn Sie die Docker-Anleitung befolgt haben, finden Sie diese auf Ihrem Host-Rechner unter:
-  `C:\docker-data\findmovies\data\app.log` (für Windows) oder `~/docker-data/findmovies/data/app.log` (für macOS).
-
-
-Um den Container zu stoppen, können Sie `docker stop findmovies-app-instance` ausführen. Um ihn neu zu starten, `docker start findmovies-app-instance`.
+**Container stoppen**
+```bash
+docker stop findmovies-app-instance
+```
 
 
 ## Release-Bundle (für einfache Nutzung)

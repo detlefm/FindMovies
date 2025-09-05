@@ -222,7 +222,9 @@ async def collect_movies( model: Optional[str] = None) -> int:
             # raise HTTPException(status_code=500, detail=str(e))
         logger.info("After LLM, found EPGs: %d", len(epgs))
         infostatus.run_progress = 0.8
-        usr_filters = list(get_usr_filters(Path(cfg.settings.plugin_folder)))
+        pluginpath = Path(cfg.settings.plugin_folder)
+        usr_filters = list(get_usr_filters(path=pluginpath))
+        logger.info("%d User filters found, Path %s", len(usr_filters), pluginpath)
         if usr_filters:
             logger.info("Applying %d user filters ...", len(usr_filters))
             epgs = MS_ControllerBase.filter_epgs(epgs=epgs, filters=usr_filters)
