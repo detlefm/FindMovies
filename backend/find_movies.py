@@ -79,13 +79,9 @@ class Chat4ContentInfo:
 
     def _chat(self, epg: EPG) -> str:
 
-        try:
-            sepg = shrink_epg(epg)
-            jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
-        except Exception as e:
-            logger.error(f"Error shrinking EPG: {str(e)}")
-            logger.error(f"EPG data: {epg.model_dump_json()}")
-            return "Other"
+        sepg = shrink_epg(epg)
+        jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
+
         usr_msg = {
             "role": "user",
             "content": self.prompttxt.replace("<EPGENTRY>", json.dumps(jsonstr, ensure_ascii=False)),
@@ -94,31 +90,40 @@ class Chat4ContentInfo:
         if asyncio.iscoroutine(completion):
             completion = asyncio.get_event_loop().run_until_complete(completion)
         json_result = self.client.get_result_content(completion=completion)
-        try:
-            answer: dict = json.loads(json_result.strip())
-            return str(answer.get("category", "Other"))
-        except json.JSONDecodeError:
-            return "Other"
+        answer: dict = json.loads(json_result.strip())
+        return str(answer.get("category", "Other"))
 
-    def __call__(self, epg: EPG) -> list[str]:
+
+    # def __call__(self, epg: EPG) -> list[str]:
+    #     if epg.contentinfo:
+    #         return epg.contentinfo
+    #     category = self._chat(epg)
+    #     logger.info("ChatBot: %s > %s", category, epg.title)
+    #     return [category]
+    
+    def get_category(self, epg: EPG) -> list[str]:
         if epg.contentinfo:
             return epg.contentinfo
-        category = self._chat(epg)
-        logger.info("ChatBot: %s > %s", category, epg.title)
-        return [category]
+        try:
+            category = self._chat(epg)
+            logger.info("ChatBot: %s > %s", category, epg.title)
+            return [category]
+        except Exception as e:
+            logger.error(f"Error getting category for {epg.title}: {e}")
+            return ["Other"]    
 
 
 def add_content_category(
     client, epgs: list[EPG], model: Optional[str] = None
 ) -> list[EPG]:
-    cb = Chat4ContentInfo(client=client, prompttxt=epg_content_prompt, model=model)
+    bot = Chat4ContentInfo(client=client, prompttxt=epg_content_prompt, model=model)
     idx = 0
     for epg in epgs:
         if epg.contentinfo:
             continue
         idx += 1
         print(f"\r{idx:3}  ", end="", flush=True)
-        epg.contentinfo.extend(cb(epg))
+        epg.contentinfo.extend(bot.get_category(epg))
     print()
     return epgs
 
@@ -175,40 +180,6 @@ def collect_movies(dest: Optional[str] = None, model: Optional[str] = None) -> i
         logger.info(f"{len(epgs)} Movies saved to %s", movies_path)
         return len(epgs)
 
-# def collect_movies(dest: Optional[str] = None, model: Optional[str] = None) -> None:
-#     with httpx.Client() as http:
-#         media_server = MediaServer(httpclient=http,url=cfg.settings.server_url)
-#         ms_ctrl = MS_Controller(ms_server=media_server)
-#         movies_path = Path(dest) if dest else std_movies_path
-#         try: 
-#             days = cfg.settings.filterparameters.get("days", 7)
-#             if isinstance(days,str):
-#                 days = int(days)
-#             epgs = ms_ctrl.fetch_epgs(favonly=True, filters=[DaysFilter(days=days)])
-#         except httpx.ConnectError as e:
-#             logger.error(str(e))
-#             print(f"Connection Error  {cfg.settings.server_url}")
-#             return
-#         epgs = sorted(epgs, key=lambda epg: epg.start)
-#         epgs = ms_ctrl.filter_epgs(epgs=epgs, filters=_build_filters(ms_ctrl=ms_ctrl))
-#         logger.info("Found EPGs: %d", len(epgs))
-#         try:
-#             client = chat_client(settings=cfg.settings, model=model)
-#             info = client.info()
-#             logger.info("%s, %s", info.get("provider"), info.get("model"))
-#             logger.info("add content categories ...")
-#             epgs = add_content_category(client=client, epgs=epgs, model=model)
-#         except ValueError as e:
-#             logger.error(e)
-#             print(f'Error: {e} - no clarification of content categories possible')
-#         epgs = ms_ctrl.apply_filter(epgs, epgfilter=ContentMovieFilter())
-#         epgs = sorted(epgs, key=lambda epg: epg.start)
-#         write_jsonl(
-#             filepath=movies_path,
-#             data=[epg.model_dump(mode="json", exclude_none=True) for epg in epgs],
-#         )
-#         logger.info(f"{len(epgs)} Movies saved to %s", movies_path)
-#         print(f"{len(epgs)} Movies saved to {movies_path}")
 
 
 

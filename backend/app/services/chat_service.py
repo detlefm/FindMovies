@@ -82,12 +82,7 @@ class ChatClient(BaseChatClient):
             
             raise ChatRequestError(error_msg) from e              
         
-        # completion = self.client.chat.completions.create(
-        #     model=model,
-        #     extra_headers=self._get_headers(),
-        #     messages=messages,  # type: ignore
-        # )
-        # return completion
+
 
 
 class AsyncChatClient(BaseChatClient):

@@ -31,7 +31,7 @@ from app.filter import (
 from app.epgfilter_ctrl import base_filters
 from app.mediasrv_ctrl import AsyncMS_Controller, MS_Controller, MS_ControllerBase
 from app.services.ms_service import AsyncMediaServer, MediaServer, MockMediaServer
-from app.services.chat_service import AsyncChatClient, ChatClient
+from app.services.chat_service import AsyncChatClient, ChatClient, ChatRequestError
 from app.my_types import EPG
 from app.chat_ctrl import shrink_epg
 from app.utils import read_jsonl, write_jsonl,dt2str
@@ -147,31 +147,36 @@ class Chat4ContentInfo:
         self.prompttxt = prompttxt
 
     async def _chat(self, epg: EPG) -> str:
-        try:
-            sepg = shrink_epg(epg)
-            jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)
-        except Exception as e:
-            logger.error(f"Error shrinking EPG: {str(e)}")
-            logger.debug(f"EPG data: {epg.model_dump(mode='json')}")
-            return "Other"
+        sepg = shrink_epg(epg)
+        jsonstr = sepg.model_dump(mode="json", exclude_none=True, exclude_defaults=True)       
         usr_msg = {
             "role": "user",
             "content": self.prompttxt.replace("<EPGENTRY>", json.dumps(jsonstr, ensure_ascii=False)),
         }
         completion = await self.client.ask(messages=[usr_msg], model=self.model)
         json_result = self.client.get_result_content(completion=completion)
-        try:
-            answer: dict = json.loads(json_result.strip())
-            return str(answer.get("category", "Other"))
-        except json.JSONDecodeError:
-            return "Other"
+        answer: dict = json.loads(json_result.strip())
+        return str(answer.get("category", "Other"))
 
-    async def __call__(self, epg: EPG) -> list[str]:
+
+    # async def __call__(self, epg: EPG) -> list[str]:
+    #     if epg.contentinfo:
+    #         return epg.contentinfo
+    #     category = await self._chat(epg)
+    #     logger.info("ChatBot: %s > %s", category, epg.title)
+    #     return [category]
+    
+    async def get_category(self, epg: EPG) -> list[str]:
         if epg.contentinfo:
             return epg.contentinfo
-        category = await self._chat(epg)
-        logger.info("ChatBot: %s > %s", category, epg.title)
-        return [category]
+        try:
+            category = await self._chat(epg)
+            logger.info("ChatBot: %s > %s", category, epg.title)
+            return [category]
+        except Exception as e:
+            logger.error(f"Error getting category for {epg.title}: {e}")
+            return ["Other"]
+
 
 
 
@@ -183,14 +188,14 @@ async def add_content_category(
         ) -> None:
     lenepgs = len(epgs)
     step = 60 / lenepgs if lenepgs > 0 else 1
-    cb = Chat4ContentInfo(client=client, prompttxt=epg_content_prompt, model=model)
+    bot = Chat4ContentInfo(client=client, prompttxt=epg_content_prompt, model=model)
     idx = 0
     for epg in epgs:
         idx += 1
         logger.info(f"Processing {idx:3} - {epg.title}")
         infostatus.run_progress = 0.15 + (idx * step / 100)
-        epg.contentinfo.extend(await cb(epg))
-    
+        epg.contentinfo.extend(await bot.get_category(epg))
+
 
 
 async def collect_movies( model: Optional[str] = None) -> int:
