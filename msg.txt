@@ -1,0 +1,13 @@
+[{
+	"resource": "/C:/Users/meyer/Projects/_Current/FindMovies/frontend/src/components/EpgTable.svelte",
+	"owner": "_generated_diagnostic_collection_name_#3",
+	"code": "constant_binding",
+	"severity": 8,
+	"message": "Cannot bind to constant\nhttps://svelte.dev/e/constant_binding",
+	"source": "svelte",
+	"startLineNumber": 126,
+	"startColumn": 20,
+	"endLineNumber": 126,
+	"endColumn": 43,
+	"origin": "extHost1"
+}]

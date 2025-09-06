@@ -2,6 +2,7 @@
   import StatusBar from './components/StatusBar.svelte';
   import Controls from './components/Controls.svelte';
   import MovieList from './components/MovieList.svelte';
+  import EpgTable from './components/EpgTable.svelte';
   import ConfirmDialog from './components/ConfirmDialog.svelte';
   import { api } from './lib/api.js';
 
@@ -12,6 +13,7 @@
   let notification = $state({ type: '', message: '', visible: false }); // Für globale Benachrichtigungen
   let isLoading = $state({ info: true, collect: false, movies: false, save: false, timer: false });
   let dialog = $state({ open: false, title: '', message: '', onConfirm: () => {} });
+  let currentView = $state('cards'); // 'cards' or 'table'
 
   let pollingInterval = null;
 
@@ -255,7 +257,16 @@
 
   {#if movies.length > 0}
     <div class="container">
-      <MovieList {movies} {markedForDeletion} onToggleMark={handleToggleMark} />
+      <div class="view-toggle">
+        <button onclick={() => currentView = 'cards'} disabled={currentView === 'cards'}>Card View</button>
+        <button onclick={() => currentView = 'table'} disabled={currentView === 'table'}>Table View</button>
+      </div>
+
+      {#if currentView === 'cards'}
+        <MovieList {movies} {markedForDeletion} onToggleMark={handleToggleMark} />
+      {:else}
+        <EpgTable {movies} {markedForDeletion} onToggleMark={handleToggleMark} />
+      {/if}
     </div>
   {/if}
 
@@ -270,8 +281,8 @@
 
 <style>
   .notification {
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 0.33rem;
+    margin-bottom: 0.33rem;
     border-radius: 0.25rem;
     display: flex;
     justify-content: space-between;
@@ -296,5 +307,11 @@
     font-size: 1.5rem;
     line-height: 1;
     padding: 0 0.5rem;
+  }
+  .view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 0.33rem;
   }
 </style>

@@ -36,6 +36,6 @@
     flex-wrap: wrap;
     gap: 0.75rem;
     justify-content: center;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 </style>

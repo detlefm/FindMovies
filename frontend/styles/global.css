@@ -8,9 +8,9 @@ body {
 }
 
 #app {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 0.33rem;
 }
 
 /* Farbvariablen für Hell- und Dunkelmodus */
@@ -51,7 +51,7 @@ body {
 h1 {
   text-align: center;
   color: var(--color-primary);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 button, input {
@@ -97,11 +97,11 @@ button:disabled {
 }
 
 .container {
-  padding: 1rem;
+  padding: 0.33rem;
   background-color: var(--color-card-bg);
   border-radius: 0.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  margin-bottom: 1rem;
+  margin-bottom: 0.33rem;
 }
 
 @media (prefers-color-scheme: dark) {

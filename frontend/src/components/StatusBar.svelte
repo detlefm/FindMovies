@@ -37,7 +37,7 @@
     background-color: var(--color-card-bg);
     border: 1px solid var(--color-card-border);
     border-radius: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0.5rem;
     font-size: 0.9rem;
   }
 
